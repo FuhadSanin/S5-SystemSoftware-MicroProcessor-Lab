@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-void LRU(int[], int[], int, int, int[], int);
+void LRU(int[], int[], int, int, int[]);
 
 int main()
 {
@@ -20,14 +20,14 @@ int main()
         scanf("%d", &pages[i]);
     }
     // call the function
-    LRU(pages, frames, pCount, fCount, least, counter);
+    LRU(pages, frames, pCount, fCount, least);
 
     return 0;
 }
 
-void LRU(int pages[], int frames[], int pCount, int fCount, int least[], int counter)
+void LRU(int pages[], int frames[], int pCount, int fCount, int least[])
 {
-    int i, j, k, flag, queue = 0, hitCount = 0, faultCount = 0, pos;
+    int i, j, k, flag, queue = 0, hitCount = 0, faultCount = 0, pos, counter = 0, time[20];
     printf("Ref String\t|Sequence\n");
     for (i = 0; i < pCount; i++)
     {
@@ -40,6 +40,8 @@ void LRU(int pages[], int frames[], int pCount, int fCount, int least[], int cou
             {
                 flag = 1;
                 hitCount++;
+                counter++;
+                time[j] = counter;
                 break;
             }
         }
@@ -47,30 +49,22 @@ void LRU(int pages[], int frames[], int pCount, int fCount, int least[], int cou
         {
             if (queue < fCount)
             {
+                counter++;
+                time[queue] = counter;
                 frames[queue] = pages[i];
                 queue += 1;
             }
             else
             {
-                for (j = 0; j < fCount; j++)
-                {
-                    least[j] = 0;
-                    for (k = i - 1; k >= 0; k--)
-                    {
-                        if (frames[j] == pages[k])
-                        {
-                            least[k] = i - k;
-                            break;
-                        }
-                    }
-                }
+                counter++;
                 pos = 0;
                 for (j = 0; j < fCount; j++)
                 {
-                    if (least[j] > least[pos])
+                    if (time[j] < time[pos])
                         pos = j;
                 }
                 frames[pos] = pages[i];
+                time[pos] = counter;
             }
         }
         if (flag == 1)
@@ -85,40 +79,43 @@ void LRU(int pages[], int frames[], int pCount, int fCount, int least[], int cou
     }
     printf("Total Page Faults = %d\n\n", faultCount);
 }
+// 7 0 1 2 0 3 0 4 2 3 0 3 1 2 0
 
 /*
-Number of Frames : 4
-Number of Pages : 13
+Number of Frames : 3
+Number of Pages : 15
 Enter the reference string
- 7 0 1 2 0 3 0 4 2 3 0 3 2
+7 0 1 2 0 3 0 4 2 3 0 3 1 2 0
 Ref String      |Sequence
-7       |7 -1 -1 -1
+7       |7 -1 -1
 
-0       |7 0 -1 -1
+0       |7 0 -1
 
-1       |7 0 1 -1
+1       |7 0 1
 
-2       |7 0 1 2
-
-0       |Hit
-
-3       |3 0 1 2
+2       |2 0 1
 
 0       |Hit
 
-4       |3 0 4 2
+3       |2 0 3
 
-2       |Hit
+0       |Hit
+
+4       |4 0 3
+
+2       |4 0 2
+
+3       |4 3 2
+
+0       |0 3 2
 
 3       |Hit
 
-0       |Hit
+1       |0 3 1
 
-3       |Hit
+2       |2 3 1
 
-2       |Hit
+0       |2 0 1
 
-Total Page Faults = 6
-
-
+Total Page Faults = 12
 */
